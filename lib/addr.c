@@ -40,9 +40,9 @@ static inline uint16_t dn_ntohs(uint16_t addr)
 	union {
 		uint8_t byte[2];
 		uint16_t word;
-	} u = {
-		.word = addr,
-	};
+	} u;
+
+        u.word = addr;
 
 	return ((uint16_t) u.byte[0]) | (((uint16_t) u.byte[1]) << 8);
 }
