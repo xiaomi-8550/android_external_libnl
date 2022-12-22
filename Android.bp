@@ -55,10 +55,7 @@ cc_library {
         },
         host: {
             srcs: [
-                "lib/route/link.c",
-                "lib/route/link/api.c",
                 "lib/route/link/macvlan.c",
-                "lib/route/link/sriov.c",
             ],
         },
     },
@@ -72,6 +69,10 @@ cc_library {
         "lib/genl/genl.c",
         "lib/genl/mngt.c",
         "lib/netfilter/nfnl.c",
+        "lib/route/link.c",
+        "lib/route/link/api.c",
+        "lib/route/link/macsec.c",
+        "lib/route/link/sriov.c",
         "lib/route/route_utils.c",
         "lib/route/rtnl.c",
     ],
