@@ -1,22 +1,19 @@
-#include <netlink-private/types.h>
-#include <netlink/route/cls/ematch.h>
-
 #include <linux/netlink.h>
-
 #include <stdio.h>
 #include <time.h>
-
 #include <check.h>
-#include "util.h"
 
-#define MAX_DEPTH		6
-#define MAX_CHILDREN		5
+#include "netlink-private/types.h"
+#include "netlink/route/cls/ematch.h"
+#include "cksuite-all.h"
+#include "netlink-private/nl-auto.h"
+
+#define MAX_DEPTH 6
+#define MAX_CHILDREN 5
 
 static int current_depth = 0;
 static int id = 1;
 static long long array_size = 0;
-
-static int *src_result = NULL, *dst_result = NULL;
 
 static long long my_pow(long long x, long long y)
 {
@@ -28,7 +25,7 @@ static long long my_pow(long long x, long long y)
 	if (y < 0 || x == 0)
 		return 0;
 
-	while(--y) {
+	while (--y) {
 		ret *= x;
 	}
 
@@ -79,7 +76,7 @@ static void dump_ematch_list(struct nl_list_head *head, int *result, int *index)
 {
 	struct rtnl_ematch *pos = NULL;
 
-	nl_list_for_each_entry(pos, head, e_list) {
+	nl_list_for_each_entry (pos, head, e_list) {
 		if (!nl_list_empty(&pos->e_childs))
 			dump_ematch_list(&pos->e_childs, result, index);
 		result[*index] = pos->e_id;
@@ -87,7 +84,8 @@ static void dump_ematch_list(struct nl_list_head *head, int *result, int *index)
 	}
 }
 
-static void dump_ematch_tree(struct rtnl_ematch_tree *tree, int *result, int *index)
+static void dump_ematch_tree(struct rtnl_ematch_tree *tree, int *result,
+			     int *index)
 {
 	if (!tree)
 		return;
@@ -107,8 +105,12 @@ static int compare(int *r1, int *r2, int len)
 
 START_TEST(ematch_tree_clone)
 {
-	struct rtnl_ematch_tree *src = NULL, *dst = NULL;
-	int i = 0, j = 0;
+	_nl_auto_rtnl_ematch_tree struct rtnl_ematch_tree *src = NULL;
+	_nl_auto_rtnl_ematch_tree struct rtnl_ematch_tree *dst = NULL;
+	_nl_auto_free int *src_result = NULL;
+	_nl_auto_free int *dst_result = NULL;
+	int i = 0;
+	int j = 0;
 
 	array_size = (MAX_DEPTH * my_pow(MAX_CHILDREN, MAX_DEPTH)) / 2;
 	src_result = calloc(4, array_size);
@@ -122,22 +124,19 @@ START_TEST(ematch_tree_clone)
 	dst = rtnl_ematch_tree_clone(src);
 	dump_ematch_tree(dst, dst_result, &j);
 
-	fail_if(!dst);
-	fail_if(i != j);
-	fail_if(compare(src_result, dst_result, i));
-
-	free(src_result);
-	free(dst_result);
+	ck_assert(dst);
+	ck_assert(i == j);
+	ck_assert(!compare(src_result, dst_result, i));
 }
 END_TEST
 
 Suite *make_nl_ematch_tree_clone_suite(void)
 {
 	Suite *suite = suite_create("Clone ematch tree");
+	TCase *tc = tcase_create("Core");
 
-	TCase *ematch_tree = tcase_create("Core");
-	tcase_add_test(ematch_tree, ematch_tree_clone);
-	suite_add_tcase(suite, ematch_tree);
+	tcase_add_test(tc, ematch_tree_clone);
+	suite_add_tcase(suite, tc);
 
 	return suite;
 }
