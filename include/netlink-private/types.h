@@ -39,6 +39,10 @@
 
 #define NL_MSG_CRED_PRESENT 1
 
+#ifndef in_addr_t
+typedef uint32_t in_addr_t;
+#endif
+
 struct nl_cache_ops;
 struct nl_sock;
 struct nl_object;
